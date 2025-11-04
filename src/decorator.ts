@@ -71,7 +71,8 @@ export class Decorator {
       if (!range) continue;
 
       // Skip all decorations if the line is selected (show raw markdown when clicking on a line)
-      if (this.isLineOfRangeSelected(range)) {
+      // or if the range intersects with any selection (show raw markdown when selecting a range)
+      if (this.isLineOfRangeSelected(range) || this.isRangeSelected(range)) {
         continue;
       }
 
