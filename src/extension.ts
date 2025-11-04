@@ -8,12 +8,20 @@ export function activate(context: vscode.ExtensionContext) {
   const changeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor(() => {
     decorator.setActiveEditor(vscode.window.activeTextEditor);
   });
+  
   const changeTextEditorSelection = vscode.window.onDidChangeTextEditorSelection(() => {
     decorator.updateDecorations();
   });
 
+  const changeDocument = vscode.workspace.onDidChangeTextDocument((event) => {
+    if (event.document === vscode.window.activeTextEditor?.document) {
+      decorator.updateDecorations();
+    }
+  });
+
   context.subscriptions.push(changeActiveTextEditor);
   context.subscriptions.push(changeTextEditorSelection);
+  context.subscriptions.push(changeDocument);
 }
 
 export function deactivate(context: vscode.ExtensionContext) {

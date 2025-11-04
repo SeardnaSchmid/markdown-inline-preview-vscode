@@ -1,30 +1,37 @@
 import { Range, TextEditor } from 'vscode';
 import {
-  DefaultColorDecorationType, HideDecorationType, XxlTextDecorationType, XlTextDecorationType, LTextDecorationType,
+  HideDecorationType,
+  BoldDecorationType,
+  ItalicDecorationType,
+  BoldItalicDecorationType,
+  StrikethroughDecorationType,
+  CodeDecorationType,
+  HeadingDecorationType,
+  Heading1DecorationType,
+  Heading2DecorationType,
+  Heading3DecorationType,
+  LinkDecorationType,
+  ImageDecorationType,
 } from './decorations';
-
-const boldRegex = /(\*{2}|_{2})((?=[^\s*_]).*?[^\s*_])(\1)/g;
-const italicRegex = /(?<!\*|_)(\*|_)((?=[^\s*_]).*?[^\s*_])(\1)(?!\*|_)/g;
-const strikethroughRegex = /(?<!~)(~{2})((?=[^\s~]).*?[^\s~])(~{2})(?!~)/g;
-const inlineCodeRegex = /(`)((?=[^\s`]).*?[^\s`])(`)/g;
-const blockCodeRegex = /((`{3}|~{3})\w*\n)(.*\n)*?(\2\n)/g;
-const hRegex = /^[ \t]*#{1,6}([ \t].*|$)/gm;
-const h1Regex = /^[ \t]*#{1}([ \t].*|$)/gm;
-const h2Regex = /^[ \t]*#{2}([ \t].*|$)/gm;
-const h3Regex = /^[ \t]*#{3}([ \t].*|$)/gm;
+import { MarkdownParser, DecorationRange } from './parser';
 
 export class Decorator {
   activeEditor: TextEditor | undefined;
 
-  hideDecorationType = HideDecorationType();
+  private parser = new MarkdownParser();
 
-  defaultColorDecorationType = DefaultColorDecorationType();
-
-  xxlTextDecorationType = XxlTextDecorationType();
-
-  xlTextDecorationType = XlTextDecorationType();
-
-  lTextDecorationType = LTextDecorationType();
+  private hideDecorationType = HideDecorationType();
+  private boldDecorationType = BoldDecorationType();
+  private italicDecorationType = ItalicDecorationType();
+  private boldItalicDecorationType = BoldItalicDecorationType();
+  private strikethroughDecorationType = StrikethroughDecorationType();
+  private codeDecorationType = CodeDecorationType();
+  private headingDecorationType = HeadingDecorationType();
+  private heading1DecorationType = Heading1DecorationType();
+  private heading2DecorationType = Heading2DecorationType();
+  private heading3DecorationType = Heading3DecorationType();
+  private linkDecorationType = LinkDecorationType();
+  private imageDecorationType = ImageDecorationType();
 
   setActiveEditor(textEditor: TextEditor | undefined) {
     if (!textEditor) {
@@ -43,102 +50,115 @@ export class Decorator {
     }
 
     const documentText = this.activeEditor.document.getText();
+    const decorations = this.parser.extractDecorations(documentText);
 
-    const hiddenRanges = [];
-    hiddenRanges.push(...this.getTogglableSymmetricRanges(documentText, boldRegex));
-    hiddenRanges.push(...this.getTogglableSymmetricRanges(documentText, italicRegex));
-    hiddenRanges.push(...this.getTogglableSymmetricRanges(documentText, strikethroughRegex));
-    hiddenRanges.push(...this.getTogglableSymmetricRanges(documentText, inlineCodeRegex));
-    hiddenRanges.push(...this.getTogglableSymmetricRanges(documentText, blockCodeRegex));
-    hiddenRanges.push(...this.getHeadingHidingRanges(documentText));
-    this.activeEditor.setDecorations(this.hideDecorationType, hiddenRanges);
+    // Separate decorations by type
+    const hideRanges: Range[] = [];
+    const boldRanges: Range[] = [];
+    const italicRanges: Range[] = [];
+    const boldItalicRanges: Range[] = [];
+    const strikethroughRanges: Range[] = [];
+    const codeRanges: Range[] = [];
+    const headingRanges: Range[] = [];
+    const heading1Ranges: Range[] = [];
+    const heading2Ranges: Range[] = [];
+    const heading3Ranges: Range[] = [];
+    const linkRanges: Range[] = [];
+    const imageRanges: Range[] = [];
 
-    const defaultColorRanges = [];
-    defaultColorRanges.push(...this.getRanges(documentText, boldRegex));
-    defaultColorRanges.push(...this.getRanges(documentText, italicRegex));
-    defaultColorRanges.push(...this.getRanges(documentText, hRegex));
-    this.activeEditor.setDecorations(this.defaultColorDecorationType, defaultColorRanges);
+    for (const decoration of decorations) {
+      const range = this.createRange(decoration.startPos, decoration.endPos);
+      if (!range) continue;
 
-    this.activeEditor.setDecorations(this.xxlTextDecorationType, this.getRanges(documentText, h1Regex));
-    this.activeEditor.setDecorations(this.xlTextDecorationType, this.getRanges(documentText, h2Regex));
-    this.activeEditor.setDecorations(this.lTextDecorationType, this.getRanges(documentText, h3Regex));
+      // Skip all decorations if the line is selected (show raw markdown when clicking on a line)
+      if (this.isLineOfRangeSelected(range)) {
+        continue;
+      }
+
+      switch (decoration.type) {
+        case 'hide':
+          hideRanges.push(range);
+          break;
+        case 'bold':
+          boldRanges.push(range);
+          break;
+        case 'italic':
+          italicRanges.push(range);
+          break;
+        case 'boldItalic':
+          boldItalicRanges.push(range);
+          break;
+        case 'strikethrough':
+          strikethroughRanges.push(range);
+          break;
+        case 'code':
+          codeRanges.push(range);
+          break;
+        case 'heading':
+          headingRanges.push(range);
+          break;
+        case 'heading1':
+          heading1Ranges.push(range);
+          break;
+        case 'heading2':
+          heading2Ranges.push(range);
+          break;
+        case 'heading3':
+          heading3Ranges.push(range);
+          break;
+        case 'link':
+          linkRanges.push(range);
+          break;
+        case 'image':
+          imageRanges.push(range);
+          break;
+      }
+    }
+
+    // Apply all decorations
+    this.activeEditor.setDecorations(this.hideDecorationType, hideRanges);
+    this.activeEditor.setDecorations(this.boldDecorationType, boldRanges);
+    this.activeEditor.setDecorations(this.italicDecorationType, italicRanges);
+    this.activeEditor.setDecorations(this.boldItalicDecorationType, boldItalicRanges);
+    this.activeEditor.setDecorations(this.strikethroughDecorationType, strikethroughRanges);
+    this.activeEditor.setDecorations(this.codeDecorationType, codeRanges);
+    this.activeEditor.setDecorations(this.headingDecorationType, headingRanges);
+    this.activeEditor.setDecorations(this.heading1DecorationType, heading1Ranges);
+    this.activeEditor.setDecorations(this.heading2DecorationType, heading2Ranges);
+    this.activeEditor.setDecorations(this.heading3DecorationType, heading3Ranges);
+    this.activeEditor.setDecorations(this.linkDecorationType, linkRanges);
+    this.activeEditor.setDecorations(this.imageDecorationType, imageRanges);
   }
 
-  isRangeSelected(range: Range): boolean {
+  /**
+   * Convert character positions to VS Code Range
+   */
+  private createRange(startPos: number, endPos: number): Range | null {
+    if (!this.activeEditor) return null;
+
+    try {
+      const start = this.activeEditor.document.positionAt(startPos);
+      const end = this.activeEditor.document.positionAt(endPos);
+      return new Range(start, end);
+    } catch (error) {
+      // Invalid position
+      return null;
+    }
+  }
+
+  /**
+   * Check if a range is currently selected
+   */
+  private isRangeSelected(range: Range): boolean {
     return !!(this.activeEditor?.selections.find((s) => range.intersection(s)));
   }
 
-  isLineOfRangeSelected(range: Range): boolean {
-    return !!(this.activeEditor?.selections.find((s) => !(range.end.line < s.start.line || range.start.line > s.end.line)));
-  }
-
-  getTogglableSymmetricRanges(documentText: string, regex: RegExp): Range[] {
-    if (!this.activeEditor) return [];
-
-    let match;
-    const ranges = [];
-    while ((match = regex.exec(documentText))) {
-      const group = match[0];
-
-      const startGroup = match[1] || [];
-      const endGroup = match[match.length - 1] || [];
-
-      const openingStartPosition = this.activeEditor.document.positionAt(match.index);
-      const openingEndPosition = this.activeEditor.document.positionAt(match.index + startGroup.length);
-      const closingStartPosition = this.activeEditor.document.positionAt(match.index + group.length - endGroup.length);
-      const closingEndPosition = this.activeEditor.document.positionAt(match.index + group.length);
-      const fullRange = new Range(openingStartPosition, closingEndPosition);
-      if (this.isLineOfRangeSelected(fullRange)) {
-        continue;
-      }
-      ranges.push(
-        new Range(openingStartPosition, openingEndPosition),
-        new Range(closingStartPosition, closingEndPosition),
-      );
-    }
-    return ranges;
-  }
-
-  getHeadingHidingRanges(documentText: string) {
-    if (!this.activeEditor) return [];
-
-    let match;
-    const ranges = [];
-    while ((match = hRegex.exec(documentText))) {
-      const group = match[0];
-      const prefixLength = group.match(/^[ \t]*#{1,6}([ \t]|$)/)?.[0]?.length ?? 0;
-      if (prefixLength === 0) {
-        continue;
-      }
-
-      const startPosition = this.activeEditor.document.positionAt(match.index);
-      const endOfPrefixPosition = this.activeEditor.document.positionAt(match.index + prefixLength);
-      const endPosition = this.activeEditor.document.positionAt(match.index + group.length);
-      const fullRange = new Range(startPosition, endPosition);
-      if (this.isLineOfRangeSelected(fullRange)) { // or this.isRangeSelected(range)?
-        continue;
-      }
-      ranges.push(
-        new Range(startPosition, endOfPrefixPosition),
-      );
-    }
-    return ranges;
-  }
-
-  getRanges(documentText: string, regex: RegExp) {
-    if (!this.activeEditor) return [];
-
-    let match;
-    const ranges = [];
-    while ((match = regex.exec(documentText))) {
-      const group = match[0];
-
-      const startPosition = this.activeEditor.document.positionAt(match.index);
-      const endPosition = this.activeEditor.document.positionAt(match.index + group.length);
-      ranges.push(
-        new Range(startPosition, endPosition),
-      );
-    }
-    return ranges;
+  /**
+   * Check if any part of a range's line is selected
+   */
+  private isLineOfRangeSelected(range: Range): boolean {
+    return !!(this.activeEditor?.selections.find(
+      (s) => !(range.end.line < s.start.line || range.start.line > s.end.line)
+    ));
   }
 }
