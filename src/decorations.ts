@@ -73,6 +73,27 @@ export function Heading3DecorationType() {
   });
 }
 
+export function Heading4DecorationType() {
+  return window.createTextEditorDecorationType({
+    textDecoration: 'none; font-size: 100%;',
+    color: new ThemeColor('descriptionForeground'),
+  });
+}
+
+export function Heading5DecorationType() {
+  return window.createTextEditorDecorationType({
+    textDecoration: 'none; font-size: 90%;',
+    color: new ThemeColor('descriptionForeground'),
+  });
+}
+
+export function Heading6DecorationType() {
+  return window.createTextEditorDecorationType({
+    textDecoration: 'none; font-size: 80%;',
+    color: new ThemeColor('descriptionForeground'),
+  });
+}
+
 export function LinkDecorationType() {
   return window.createTextEditorDecorationType({
     color: new ThemeColor('textLink.foreground'),

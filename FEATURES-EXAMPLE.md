@@ -1,136 +1,183 @@
-# Markdown Features Checklist
+# Markdown Features Example
 
-This document tracks the implementation status of all markdown features in the parser-based extension.
+This document demonstrates all features supported (or planned) by the extension.
+
+---
 
 ## Inline Formatting
 
-### Text Emphasis
-- [x] **Bold** (`**text**` or `__text__`)
-- [x] *Italic* (`*text*` or `_text_`)
-- [x] ***Bold-Italic*** (`***text***` or `___text___`)
-- [x] ~~Strikethrough~~ (`~~text~~`)
-- [ ] Highlighted text (not standard markdown, but some parsers support `==text==`)
+- **Bold**: `**bold**` → **bold**
+- __Bold__ (alt): `__bold__` → __bold__
+- *Italic*: `*italic*` → *italic*
+- _Italic_ (alt): `_italic_` → _italic_
+- ***Bold-Italic***: `***bold italic***` → ***bold italic***
+- ___Bold-Italic___ (alt): `___bold italic___` → ___bold italic___
+- ~~Strikethrough~~: `~~strike~~` → ~~strike~~
+- ==Highlighted== (not always supported): `==highlight==` → ==highlight==
+- Escaped \*asterisk\*: `\*asterisk\*` → \*asterisk\*
+- Escaped backticks: ``\`not code\``` → \`not code\`
+- Nested formatting: **Bold inside *italic***, *Italic inside **bold***, _**Bold/italic _nested_** and `inline code`_
+- Formatting with punctuation: *italic!*, **bold?**, ***combo***, _italic_, etc.
 
-### Code
-- [x] Inline code (`` `code` ``)
-- [x] Code blocks (``` ``` ```)
-- [ ] Code blocks with language (```language```)
-- [ ] Code blocks with tildes (~~~ ~~~)
+## Code
 
-### Links and Images
-- [x] Inline links (`[text](url)`)
-- [x] Images (`![alt](url)`)
-- [ ] Reference-style links (`[text][ref]`)
-- [ ] Reference-style images (`![alt][ref]`)
-- [ ] Auto-links (`<https://example.com>`)
-- [ ] Link titles (`[text](url "title")`)
+Inline code: ``This is `inline code` in text``
+
+```
+Code block (fenced, no language)
+```
+
+```js
+// Code block (javascript)
+console.log("Hello, world!");
+```
+
+~~~python
+# Code block (tildes, python)
+print("Hello with tildes")
+~~~
+
+## Links and Images
+
+- Inline link: [Example](https://example.com)
+- Link with title: [with title](https://example.com "title here")
+- Reference link: [Google][g]
+- Auto-link: <https://github.com>
+- ![alt text for image](https://via.placeholder.com/80)
+- Reference image: ![Ref image][img1]
+
+[g]: https://google.com
+[img1]: https://via.placeholder.com/40
 
 ## Block Elements
 
-### Headings
-- [x] H1 (`# Heading`)
-- [x] H2 (`## Heading`)
-- [x] H3 (`### Heading`)
-- [x] H4 (`#### Heading`)
-- [x] H5 (`##### Heading`)
-- [x] H6 (`###### Heading`)
-- [x] Headings with leading whitespace
-- [x] Headings with trailing whitespace
+# H1 Heading
+## H2 Heading
+### H3 Heading
+#### H4 Heading
+##### H5 Heading
+###### H6 Heading
 
-### Lists
-- [ ] Unordered lists (`- item`, `* item`, `+ item`)
-- [ ] Ordered lists (`1. item`, `2. item`)
-- [ ] Nested lists
-- [ ] Task lists (`- [ ] task`, `- [x] done`)
-- [ ] List items with multiple paragraphs
-- [ ] List items with code blocks
-- [ ] List items with blockquotes
+  # Heading with leading whitespace  
+# Heading with trailing whitespace  
 
-### Blockquotes
-- [ ] Basic blockquotes (`> quote`)
-- [ ] Nested blockquotes (`>> quote`)
-- [ ] Blockquotes with multiple paragraphs
-- [ ] Blockquotes with lists
-- [ ] Blockquotes with code blocks
+Unordered list:
+- Item one
+* Item two
++ Item three
 
-### Horizontal Rules
-- [ ] `---`
-- [ ] `***`
-- [ ] `___`
+Ordered list:
+1. First
+2. Second
+3. Third
 
-### Tables
-- [ ] Basic tables (`| col1 | col2 |`)
-- [ ] Table alignment (`|:---|:---:|---:|`)
-- [ ] Table with headers
-- [ ] Table with formatting in cells
+Nested lists:
+- Top
+  - Nested
+    - Deep nested
 
-### HTML
-- [ ] HTML tags (if enabled in parser)
-- [ ] HTML comments (`<!-- comment -->`)
+Task lists:
+- [ ] Todo item
+- [x] Done item
+
+List item with multiple paragraphs:
+- First paragraph.
+
+  Second paragraph in the same item.
+
+List item with code block:
+- List + code:
+
+      let x = 1;
+
+List item with blockquote:
+- List + quote:
+
+    > Nested quote
+
+Blockquotes:
+> Just a quote  
+>> Double nested
+
+> Quote  
+>
+> With two paragraphs
+
+> Quote  
+> - With a list  
+> - More
+
+> Quote with code block:
+>
+>     console.log("Inside quote");
+
+Horizontal rules:
+
+---
+***
+___
+
+## Tables
+
+| Name  | Desc     | Right |
+|:----- |:--------:| ----:|
+| foo   | bar      |   10 |
+| bold  | **yes**  |   20 |
+
+## HTML
+
+<div>Raw HTML block</div>
+
+<!-- This is an HTML comment -->
 
 ## Special Features
 
-### Escaping
-- [ ] Escaped characters (`\*`, `\#`, etc.)
-- [ ] Escaped backticks
+Line breaks:  
+This line ends with two spaces.<br>
+This is a new line.
 
-### Line Breaks
-- [ ] Hard line breaks (`  ` - two spaces at end of line)
-- [ ] Soft line breaks (newline in paragraph)
+Soft line
+break example.
 
-### Nested Formatting
-- [x] Bold containing italic (`**bold *italic* bold**`)
-- [x] Italic containing bold (`*italic **bold** italic*`)
-- [ ] Code with formatting (`` `code` `` - formatting inside code is ignored)
-- [ ] Links with formatting (`[**bold** link](url)`)
-- [ ] Images with formatting in alt text
+## Nested Formatting, Typography, Edge Cases
 
-### Typography
-- [ ] Smart quotes (if typographer enabled)
-- [ ] Em dashes (—)
-- [ ] En dashes (–)
-- [ ] Ellipsis (…)
+- **Bold with *italic inside bold***  
+- *Italic with **bold inside italic***  
+- `*Formatting inside code block*`  
+- [**Bold Link**](https://bold.com)  
+- ![Alt with _italic_](https://via.placeholder.com/20)
 
-## GFM (GitHub Flavored Markdown)
+"Smart quotes" — em dash — en dash – ellipsis …
 
-- [ ] Strikethrough (`~~text~~`) - ✅ Already implemented
-- [ ] Task lists (`- [ ] task`) - Not implemented
-- [ ] Tables - Not implemented
-- [ ] Autolinks - Not implemented
-- [ ] Fenced code blocks with language - ✅ Partially (language parsing not used)
-- [ ] Fenced code blocks with info strings
+## Visual Features Demo
 
-## Edge Cases
+- **Bold**
+- *Italic*
+- ***Bold-Italic***
+- ~~Strikethrough~~
+- `Inline code`
+- [Link](#)
+- ![Image](https://via.placeholder.com/10)
+- > Quoted text
+- 1. Ordered
+    - Unordered
 
-- [x] Multiple headings in same document
-- [x] Headings at start/end of document
-- [x] Headings with special characters
-- [ ] Empty headings
-- [ ] Headings with only whitespace
-- [x] Bold/italic at word boundaries
-- [ ] Bold/italic with punctuation
-- [ ] Code blocks with empty content
-- [ ] Code blocks with only whitespace
-- [ ] Links with empty text
-- [ ] Images with empty alt text
-- [ ] Nested formatting edge cases
-- [ ] Mixed formatting (e.g., `**bold** and *italic*`)
+---
 
-## Visual Features
+**Raw markdown:**  
+Click this line to show the raw markdown under extension.
 
-### Decoration Types
-- [x] Hide delimiters (markers, brackets, etc.)
-- [x] Bold text styling
-- [x] Italic text styling
-- [x] Bold-italic text styling
-- [x] Strikethrough text styling
-- [x] Code block styling (background, border)
-- [x] Heading styling (font-size, weight)
-- [x] Link styling (color, underline)
-- [x] Image styling (color, italic)
+---
 
-### Interaction Features
-- [x] Show raw markdown when clicking on line
-- [ ] Show raw markdown when selecting range
-- [ ] Toggle decorations on/off
-- [ ] Configuration options for decoration styles
+## Malformed & Edge/Crazy Cases
+
+# 
+Empty heading above
+
+#
+
+**Bold**, *italic*, **bold*\* not closed
+
+---
+
+# The End

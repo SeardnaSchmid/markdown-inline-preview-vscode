@@ -10,6 +10,9 @@ import {
   Heading1DecorationType,
   Heading2DecorationType,
   Heading3DecorationType,
+  Heading4DecorationType,
+  Heading5DecorationType,
+  Heading6DecorationType,
   LinkDecorationType,
   ImageDecorationType,
 } from './decorations';
@@ -30,6 +33,9 @@ export class Decorator {
   private heading1DecorationType = Heading1DecorationType();
   private heading2DecorationType = Heading2DecorationType();
   private heading3DecorationType = Heading3DecorationType();
+  private heading4DecorationType = Heading4DecorationType();
+  private heading5DecorationType = Heading5DecorationType();
+  private heading6DecorationType = Heading6DecorationType();
   private linkDecorationType = LinkDecorationType();
   private imageDecorationType = ImageDecorationType();
 
@@ -63,6 +69,9 @@ export class Decorator {
     const heading1Ranges: Range[] = [];
     const heading2Ranges: Range[] = [];
     const heading3Ranges: Range[] = [];
+    const heading4Ranges: Range[] = [];
+    const heading5Ranges: Range[] = [];
+    const heading6Ranges: Range[] = [];
     const linkRanges: Range[] = [];
     const imageRanges: Range[] = [];
 
@@ -107,6 +116,15 @@ export class Decorator {
         case 'heading3':
           heading3Ranges.push(range);
           break;
+        case 'heading4':
+          heading4Ranges.push(range);
+          break;
+        case 'heading5':
+          heading5Ranges.push(range);
+          break;
+        case 'heading6':
+          heading6Ranges.push(range);
+          break;
         case 'link':
           linkRanges.push(range);
           break;
@@ -127,6 +145,9 @@ export class Decorator {
     this.activeEditor.setDecorations(this.heading1DecorationType, heading1Ranges);
     this.activeEditor.setDecorations(this.heading2DecorationType, heading2Ranges);
     this.activeEditor.setDecorations(this.heading3DecorationType, heading3Ranges);
+    this.activeEditor.setDecorations(this.heading4DecorationType, heading4Ranges);
+    this.activeEditor.setDecorations(this.heading5DecorationType, heading5Ranges);
+    this.activeEditor.setDecorations(this.heading6DecorationType, heading6Ranges);
     this.activeEditor.setDecorations(this.linkDecorationType, linkRanges);
     this.activeEditor.setDecorations(this.imageDecorationType, imageRanges);
   }

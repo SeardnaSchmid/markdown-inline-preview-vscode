@@ -6,7 +6,7 @@ type Token = ReturnType<MarkdownIt['parse']>[0];
 export interface DecorationRange {
   startPos: number;
   endPos: number;
-  type: 'hide' | 'bold' | 'italic' | 'boldItalic' | 'strikethrough' | 'code' | 'heading' | 'heading1' | 'heading2' | 'heading3' | 'link' | 'image';
+  type: 'hide' | 'bold' | 'italic' | 'boldItalic' | 'strikethrough' | 'code' | 'heading' | 'heading1' | 'heading2' | 'heading3' | 'heading4' | 'heading5' | 'heading6' | 'link' | 'image';
   level?: number; // For headings
 }
 
@@ -203,29 +203,39 @@ export class MarkdownParser {
           const leadingWhitespace = line.length - trimmedLine.length;
           const markerStart = lineStart + leadingWhitespace;
           
-          // Hide the marker
-          decorations.push({
-            startPos: markerStart,
-            endPos: markerStart + marker.length,
-            type: 'hide',
-          });
-          
           // Calculate content range - end of line (without newline)
           const lineEnd = lineStart + line.length;
           const contentStart = markerStart + marker.length;
           
-          // Trim leading whitespace after marker
+          // Find whitespace after marker
           const afterMarker = trimmedLine.substring(marker.length);
           const whitespaceMatch = afterMarker.match(/^\s+/);
           const whitespaceLength = whitespaceMatch ? whitespaceMatch[0].length : 0;
-          const contentStartTrimmed = contentStart + whitespaceLength;
+          const hideEnd = contentStart + whitespaceLength;
+          
+          // Hide the marker AND the whitespace after it
+          decorations.push({
+            startPos: markerStart,
+            endPos: hideEnd,
+            type: 'hide',
+          });
           
           // Style the heading content (from after marker+whitespace to end of line)
+          const contentStartTrimmed = hideEnd;
           if (contentStartTrimmed < lineEnd) {
+            let headingType: DecorationRange['type'];
+            if (level === 1) headingType = 'heading1';
+            else if (level === 2) headingType = 'heading2';
+            else if (level === 3) headingType = 'heading3';
+            else if (level === 4) headingType = 'heading4';
+            else if (level === 5) headingType = 'heading5';
+            else if (level === 6) headingType = 'heading6';
+            else headingType = 'heading';
+            
             decorations.push({
               startPos: contentStartTrimmed,
               endPos: lineEnd,
-              type: level === 1 ? 'heading1' : level === 2 ? 'heading2' : level === 3 ? 'heading3' : 'heading',
+              type: headingType,
               level,
             });
           }
